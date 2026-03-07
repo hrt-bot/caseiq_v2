@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         'x-api-key': apiKey,
       },
       body: JSON.stringify({
-        model: model || 'claude-haiku-4-5-20251001',
+        model: model || 'claude-haiku-4-5',
         max_tokens: max_tokens || 600,
         system: system || '',
         messages,
