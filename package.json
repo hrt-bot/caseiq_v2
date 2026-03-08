@@ -1,0 +1,9 @@
+{
+  "name": "caseiq",
+  "version": "1.0.0",
+  "description": "CaseIQ - AIケース面接トレーナー",
+  "dependencies": {
+    "stripe": "^14.0.0",
+    "@supabase/supabase-js": "^2.0.0"
+  }
+}
