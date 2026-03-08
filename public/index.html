@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaseIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=DM+Mono:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0f0e0c; --paper:#f5f0e8; --accent:#c8401a;
+  --blue:#2a5c8a; --green:#2a7a4a; --muted:#8a8578; --line:#d4cfc4;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Sans JP',sans-serif;font-weight:300;min-height:100vh;}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--line);background:var(--paper);position:sticky;top:0;z-index:100;gap:12px;}
+.logo{font-family:'Shippori Mincho',serif;font-weight:800;font-size:20px;letter-spacing:.05em;flex-shrink:0;}
+.logo span{color:var(--accent);}
+.hcenter{flex:1;display:flex;align-items:center;gap:10px;min-width:0;}
+.back-btn{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border:1.5px solid var(--line);background:white;border-radius:2px;cursor:pointer;color:var(--muted);transition:all .2s;white-space:nowrap;display:none;}
+.back-btn:hover{border-color:var(--accent);color:var(--accent);}
+.hlabel{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:none;}
+.hright{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+#htimer{display:none;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:7px 14px;border-radius:3px;font-family:'DM Mono',monospace;}
+#tdisp{font-size:18px;font-weight:500;min-width:48px;text-align:center;}
+.tbtn{background:rgba(255,255,255,.15);border:none;color:white;width:24px;height:24px;border-radius:2px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.tbtn:hover{background:rgba(255,255,255,.3);}
+.sbadge{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:5px 12px;border:1px solid var(--line);border-radius:2px;white-space:nowrap;}
+.sbadge.on{color:var(--accent);border-color:var(--accent);}
+
+main{max-width:860px;margin:0 auto;padding:36px 20px 120px;}
+
+/* ===== START ===== */
+#s-start{text-align:center;padding:48px 0 32px;}
+.eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;}
+h1{font-family:'Shippori Mincho',serif;font-size:clamp(28px,5vw,44px);font-weight:800;line-height:1.2;margin-bottom:14px;}
+h1 em{font-style:normal;color:var(--accent);}
+.sub{font-size:14px;color:var(--muted);line-height:1.8;max-width:460px;margin:0 auto 44px;}
+
+/* STEP FLOW */
+.step-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.step-row{display:flex;gap:12px;justify-content:center;margin-bottom:36px;flex-wrap:wrap;}
+.step-card{background:white;border:2px solid var(--line);border-radius:6px;padding:18px 22px;cursor:pointer;transition:all .2s;text-align:center;min-width:160px;position:relative;}
+.step-card:hover{border-color:var(--accent);background:#fdf9f5;}
+.step-card.sel{border-color:var(--accent);background:#fdf9f5;}
+.step-card.sel::after{content:'✓';position:absolute;top:8px;right:10px;font-size:12px;color:var(--accent);}
+.step-card .sc-icon{font-size:28px;margin-bottom:8px;}
+.step-card .sc-title{font-family:'Shippori Mincho',serif;font-size:15px;font-weight:600;margin-bottom:3px;}
+.step-card .sc-sub{font-size:11px;color:var(--muted);}
+
+/* TOPIC GRID */
+.topic-section{display:none;margin-bottom:32px;}
+.topic-section.show{display:block;}
+.cat-filter{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px;justify-content:center;}
+.cat-btn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border:1.5px solid var(--line);background:white;border-radius:2px;cursor:pointer;color:var(--muted);transition:all .2s;}
+.cat-btn:hover,.cat-btn.act{border-color:var(--blue);color:var(--blue);background:#f0f5fa;}
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;text-align:left;}
+@media(max-width:620px){.tgrid{grid-template-columns:1fr 1fr;}}
+.tc{background:white;border:1.5px solid var(--line);border-radius:4px;padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.tc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .2s;}
+.tc:hover,.tc.sel{border-color:var(--accent);background:#fdf9f5;}
+.tc.sel::before{transform:scaleX(1);}
+.tc-cat{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.tc-title{font-family:'Shippori Mincho',serif;font-size:12px;font-weight:600;line-height:1.4;}
+
+.btn-go{font-family:'Shippori Mincho',serif;font-size:16px;font-weight:600;padding:15px 52px;background:var(--ink);color:var(--paper);border:none;border-radius:3px;cursor:pointer;transition:all .2s;margin-top:8px;}
+.btn-go:hover:not(:disabled){background:var(--accent);transform:translateY(-1px);}
+.btn-go:disabled{opacity:.35;cursor:not-allowed;}
+
+
+
+/* ===== THINK ===== */
+#s-think{display:none;text-align:center;padding:60px 0;}
+.think-box{background:white;border:2px solid var(--green);border-radius:6px;padding:32px;max-width:560px;margin:0 auto;}
+.think-box h2{font-family:'Shippori Mincho',serif;font-size:22px;font-weight:800;color:var(--green);margin-bottom:12px;}
+.think-prompt{font-size:14px;line-height:1.8;color:var(--ink);margin-bottom:24px;text-align:left;background:#f0f8f3;border-radius:4px;padding:16px;border-left:3px solid var(--green);}
+#think-cd{font-family:'DM Mono',monospace;font-size:52px;font-weight:500;color:var(--green);margin-bottom:8px;line-height:1;}
+.think-hint{font-size:12px;color:var(--muted);margin-bottom:24px;}
+.think-go{font-family:'Shippori Mincho',serif;font-size:15px;font-weight:600;padding:12px 36px;background:var(--green);color:white;border:none;border-radius:3px;cursor:pointer;transition:all .2s;}
+.think-go:hover{background:#1f5c36;}
+
+/* ===== CHAT ===== */
+#s-chat{display:none;}
+.sess-info{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line);}
+.mode-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:2px;color:white;flex-shrink:0;}
+.mode-tag.strategy{background:var(--accent);}
+.mode-tag.general{background:var(--blue);}
+.sess-title{font-family:'Shippori Mincho',serif;font-size:15px;font-weight:600;flex:1;}
+.turn-ct{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);flex-shrink:0;}
+
+#msgs{display:flex;flex-direction:column;margin-bottom:16px;}
+.msg{display:flex;flex-direction:column;padding:16px 0;border-bottom:1px solid var(--line);animation:fs .3s ease forwards;}
+@keyframes fs{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+.msg-meta{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.msg-role{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+.msg.ai .msg-role{color:var(--blue);}
+.msg.user .msg-role{color:var(--accent);}
+.msg-t{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);opacity:.6;margin-left:auto;}
+.msg-body{font-size:14px;line-height:1.9;white-space:pre-wrap;}
+
+.typing{display:flex;align-items:center;gap:6px;padding:16px 0;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bo 1.2s ease infinite;}
+.dot:nth-child(2){animation-delay:.15s;}
+.dot:nth-child(3){animation-delay:.3s;}
+@keyframes bo{0%,80%,100%{transform:translateY(0);opacity:.4;}40%{transform:translateY(-6px);opacity:1;}}
+
+.input-area{position:fixed;bottom:0;left:0;right:0;background:var(--paper);border-top:1px solid var(--line);padding:10px 12px 12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));z-index:50;}
+.input-inner{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:8px;}
+.input-row{display:flex;gap:8px;align-items:flex-end;}
+textarea{flex:1;background:white;border:1.5px solid var(--line);border-radius:4px;padding:10px 12px;font-family:'Noto Sans JP',sans-serif;font-size:16px;font-weight:300;resize:none;min-height:44px;max-height:120px;line-height:1.6;transition:border-color .2s;outline:none;}
+textarea:focus{border-color:var(--blue);}
+.input-btns{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+.sendbtn{width:44px;height:44px;background:var(--ink);border:none;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.sendbtn:hover:not(:disabled){background:var(--accent);}
+.sendbtn:disabled{opacity:.3;cursor:not-allowed;}
+.sendbtn svg{fill:var(--paper);}
+.endbtn{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:0 12px;height:44px;background:transparent;border:1.5px solid var(--line);border-radius:4px;cursor:pointer;color:var(--muted);transition:all .2s;white-space:nowrap;flex-shrink:0;}
+.endbtn:hover:not(:disabled){border-color:var(--accent);color:var(--accent);}
+@media(max-width:480px){
+  .endbtn{font-size:10px;padding:0 10px;letter-spacing:.02em;}
+}
+
+/* ===== EVAL ===== */
+#s-eval{display:none;}
+.eval-hd{text-align:center;padding:36px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px;}
+.eval-hd h2{font-family:'Shippori Mincho',serif;font-size:32px;font-weight:800;margin-bottom:6px;}
+.eval-meta{color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;letter-spacing:.06em;}
+.stats-row{display:flex;gap:10px;margin-bottom:24px;}
+.sbox{flex:1;background:white;border:1.5px solid var(--line);border-radius:4px;padding:16px;text-align:center;}
+.sbox .sl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.sbox .sv{font-family:'Shippori Mincho',serif;font-size:22px;font-weight:800;}
+.overall-box{background:var(--ink);color:var(--paper);border-radius:4px;padding:28px 32px;margin-bottom:28px;display:flex;align-items:center;gap:28px;}
+.ov-score{font-family:'Shippori Mincho',serif;font-size:64px;font-weight:800;line-height:1;flex-shrink:0;}
+.ov-score span{font-size:20px;font-weight:400;opacity:.45;}
+.ov-text h3{font-family:'Shippori Mincho',serif;font-size:18px;font-weight:600;margin-bottom:8px;}
+.ov-text p{font-size:13px;opacity:.7;line-height:1.8;}
+.score-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:28px;}
+@media(max-width:540px){.score-grid{grid-template-columns:1fr;}}
+.sc-card{background:white;border:1.5px solid var(--line);border-radius:4px;padding:20px;}
+.sc-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.sc-num{font-family:'Shippori Mincho',serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:6px;}
+.sc-reason{font-size:12px;color:var(--muted);line-height:1.7;}
+.sc-bar{height:3px;background:var(--line);border-radius:2px;margin-top:12px;overflow:hidden;}
+.sc-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 1s ease;width:0%;}
+.fb-block{background:white;border:1.5px solid var(--line);border-radius:4px;padding:22px;margin-bottom:12px;}
+.fb-block h4{font-family:'Shippori Mincho',serif;font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:2px;}
+.tag.good{background:#e8f5e9;color:#2e7d32;}
+.tag.imp{background:#fff3e0;color:#e65100;}
+.tag.nxt{background:#e3f2fd;color:#1565c0;}
+.fb-block p{font-size:13px;line-height:1.85;color:#3a3830;}
+
+/* MODEL ANSWER */
+.ma-block{background:white;border:2px solid var(--blue);border-radius:4px;margin-bottom:14px;overflow:hidden;}
+.ma-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;cursor:pointer;background:#f0f5fa;transition:background .2s;}
+.ma-hd:hover{background:#e4edf7;}
+.ma-hd h4{font-family:'Shippori Mincho',serif;font-size:15px;font-weight:600;color:var(--blue);}
+.ma-icon{font-size:16px;transition:transform .2s;}
+.ma-icon.open{transform:rotate(180deg);}
+.ma-body{display:none;padding:20px 22px;border-top:1px solid var(--line);}
+.ma-body.open{display:block;}
+.ma-sec{margin-bottom:18px;}
+.ma-sec:last-child{margin-bottom:0;}
+.ma-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
+.ma-txt{font-size:13px;line-height:1.85;color:#2a2a28;white-space:pre-wrap;}
+
+.retry-btn{font-family:'Shippori Mincho',serif;font-size:15px;font-weight:600;padding:14px 44px;background:transparent;border:2px solid var(--ink);border-radius:3px;cursor:pointer;transition:all .2s;display:block;margin:36px auto 0;}
+.retry-btn:hover{background:var(--ink);color:var(--paper);}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(15,14,12,.6);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-box{background:var(--paper);border-radius:6px;padding:32px;max-width:360px;width:100%;text-align:center;}
+.modal-box h3{font-family:'Shippori Mincho',serif;font-size:20px;font-weight:800;margin-bottom:10px;}
+.modal-box p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:24px;}
+.modal-btns{display:flex;gap:10px;justify-content:center;}
+.mbtn{font-family:'Shippori Mincho',serif;font-size:14px;font-weight:600;padding:11px 28px;border-radius:3px;cursor:pointer;transition:all .2s;}
+.mbtn.cancel{background:white;border:1.5px solid var(--line);color:var(--muted);}
+.mbtn.cancel:hover{border-color:var(--muted);color:var(--ink);}
+.mbtn.danger{background:var(--accent);border:none;color:white;}
+.mbtn.danger:hover{background:#a83214;}
+
+/* TOASTS */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:4px;font-size:13px;z-index:300;animation:fs .3s ease;box-shadow:0 4px 16px rgba(0,0,0,.2);max-width:90vw;text-align:center;font-family:'Noto Sans JP',sans-serif;}
+.toast.err{background:#c0392b;color:white;}
+.toast.warn{background:#e67e22;color:white;}
+.toast.ok{background:var(--green);color:white;}
+.toast.info{background:var(--blue);color:white;}
+.rate-notice{background:#fff3e0;border:1.5px solid #ffb74d;border-radius:4px;padding:14px 18px;margin:16px 0;font-size:13px;color:#7a4800;line-height:1.7;}
+.rate-notice strong{font-weight:700;}
+
+.loading-eval{text-align:center;padding:60px 20px;}
+.loading-eval .spin{font-size:36px;animation:spin 1.5s linear infinite;display:inline-block;margin-bottom:16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-eval p{font-size:14px;color:var(--muted);}
+
+
+/* MIC BUTTON */
+.micbtn{width:48px;height:48px;background:white;border:1.5px solid var(--line);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;font-size:20px;}
+.micbtn:hover{border-color:var(--blue);}
+.micbtn.recording{background:var(--accent);border-color:var(--accent);animation:pulse .8s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+.hidden{display:none!important;}
+
+/* FREE COUNTER & BADGES */
+#free-counter{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;background:#e8f4e8;color:var(--green);border:1px solid var(--green);border-radius:2px;padding:3px 8px;display:none;}
+.tc-free-badge{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;background:var(--green);color:white;border-radius:2px;padding:2px 6px;margin-left:6px;vertical-align:middle;}
+.tc-lock-badge{font-size:12px;margin-left:4px;opacity:.5;}
+.tc-locked{opacity:.45;cursor:default !important;filter:grayscale(.5);}
+.tc-locked:hover{border-color:var(--line) !important;background:white !important;}
+
+/* PAYWALL MODAL */
+.paywall-box{max-width:420px;text-align:center;}
+.pw-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+.pw-title{font-family:'Shippori Mincho',serif;font-size:20px;font-weight:800;margin-bottom:10px;}
+.pw-desc{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:20px;}
+.pw-plans{display:flex;gap:12px;margin-bottom:16px;}
+.pw-plan{flex:1;border:2px solid var(--line);border-radius:8px;padding:16px 12px;position:relative;}
+.pw-plan.recommended{border-color:var(--accent);}
+.pw-rec-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:white;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;padding:3px 10px;border-radius:10px;white-space:nowrap;}
+.pw-plan-name{font-family:'Shippori Mincho',serif;font-size:16px;font-weight:800;margin-bottom:6px;}
+.pw-plan-price{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;margin-bottom:4px;}
+.pw-plan-price span{font-size:12px;color:var(--muted);}
+.pw-plan-desc{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.pw-plan-btn{width:100%;padding:8px;border-radius:4px;border:1.5px solid var(--ink);background:white;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;transition:all .2s;}
+.pw-plan-btn:hover{background:var(--ink);color:white;}
+.pw-plan-btn-accent{background:var(--accent);border-color:var(--accent);color:white;}
+.pw-plan-btn-accent:hover{background:#a33215;}
+.pw-note{font-size:11px;color:var(--muted);margin-bottom:14px;}
+.pw-login-link{background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;text-decoration:underline;padding:0;}
+.pw-login-link{background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;text-decoration:underline;padding:0;}
+.pw-close{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;}
+
+/* FREE CARDS */
+.free-cards-row{display:flex;gap:14px;margin-bottom:32px;flex-wrap:wrap;}
+.free-card{flex:1;min-width:200px;background:white;border:2px solid var(--green);border-radius:10px;padding:20px;cursor:pointer;transition:all .2s;position:relative;}
+.free-card:hover{background:#f0faf0;transform:translateY(-2px);box-shadow:0 4px 16px rgba(42,122,74,.15);}
+.free-card.sel{background:#f0faf0;border-color:var(--green);box-shadow:0 4px 16px rgba(42,122,74,.2);}
+.free-card.sel::after{content:'✓';position:absolute;top:10px;right:14px;font-size:16px;color:var(--green);font-weight:bold;}
+.free-card.used{opacity:.5;cursor:default;border-color:var(--line);}
+.free-card.used:hover{transform:none;box-shadow:none;background:white;}
+.free-card-badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px;}
+.free-card.used .free-card-badge{color:var(--muted);}
+.free-card-title{font-family:'Shippori Mincho',serif;font-size:16px;font-weight:700;margin-bottom:6px;line-height:1.4;}
+.free-card-sub{font-size:12px;color:var(--muted);}
+.free-card-used-label{font-size:11px;color:var(--muted);margin-top:8px;font-family:'DM Mono',monospace;}
+
+/* PAID SECTION */
+.paid-section-hd{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-top:24px;border-top:1px solid var(--line);}
+.paid-badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;background:#fff3e0;color:#c8401a;border:1px solid #f0c080;border-radius:2px;padding:3px 8px;}
+
+/* GRADE GUIDE */
+.grade-guide-box{background:#f0f4ff;border:1px solid #c0ccee;border-radius:6px;padding:14px 18px;margin:16px 0;}
+.gg-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
+.gg-text{font-size:13px;color:var(--ink);line-height:1.8;white-space:pre-line;}
+
+/* SHARE BUTTONS */
+.share-row{display:flex;gap:10px;margin:20px 0 12px;}
+.share-btn{flex:1;padding:12px;border-radius:4px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.08em;font-weight:500;transition:all .2s;}
+.x-btn{background:#000;color:#fff;}
+.x-btn:hover{background:#333;}
+.img-btn{background:white;color:var(--ink);border:1.5px solid var(--line);}
+.img-btn:hover{border-color:var(--accent);color:var(--accent);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Case<span>IQ</span></div>
+  <div class="hcenter">
+    <button class="back-btn" id="back-btn">← 戻る</button>
+    <span class="hlabel" id="hlabel"></span>
+  </div>
+  <div class="hright">
+    <div id="htimer">
+      <div>
+        <div style="font-size:9px;letter-spacing:.12em;opacity:.55;text-transform:uppercase;margin-bottom:1px">経過</div>
+        <div id="tdisp">00:00</div>
+      </div>
+      <div style="display:flex;gap:5px;">
+        <button class="tbtn" id="tpause">⏸</button>
+        <button class="tbtn" id="treset">↺</button>
+      </div>
+    </div>
+    <div class="sbadge" id="sbadge">準備中</div>
+  </div>
+</header>
+
+<main>
+
+<!-- ===== START ===== -->
+<div id="s-start">
+  <div class="eyebrow">AI ケース面接トレーナー</div>
+  <h1>実戦で鍛える<br><em>コンサル思考</em></h1>
+  <p class="sub">実際のファームで出されたお題でAIと対話練習。5分思考→対話→4軸評価＋模範回答。</p>
+
+  <!-- 無料2問 -->
+  <div class="step-label">無料で体験できるお題</div>
+  <div class="free-cards-row" id="free-cards-row">
+    <div class="free-card" id="free-card-hotel">
+      <div class="free-card-badge">無料 · ケース面接</div>
+      <div class="free-card-title">高級ホテルの稼働率低下</div>
+      <div class="free-card-sub">東京六本木 · 戦略コンサル想定</div>
+    </div>
+    <div class="free-card" id="free-card-coffee">
+      <div class="free-card-badge">無料 · フェルミ推定</div>
+      <div class="free-card-title">日本のコーヒー市場規模</div>
+      <div class="free-card-sub">4セグメント分解 · 市場推定</div>
+    </div>
+  </div>
+
+  <!-- 有料お題 -->
+  <div class="paid-section-hd">
+    <div class="step-label" style="margin-bottom:0">有料プランのお題</div>
+    <span class="paid-badge">登録が必要</span>
+  </div>
+
+  <!-- STEP 1: ファーム種別 -->
+  <div class="step-label" style="margin-top:16px">STEP 1 — ファームを選ぶ</div>
+  <div class="step-row" id="firm-row">
+    <div class="step-card" data-firm="strategy">
+      <div class="sc-icon">🏆</div>
+      <div class="sc-title">戦略コンサル</div>
+      <div class="sc-sub">McKinsey / Bain / BCG</div>
+    </div>
+    <div class="step-card" data-firm="general">
+      <div class="sc-icon">💼</div>
+      <div class="sc-title">総合コンサル</div>
+      <div class="sc-sub">Deloitte / PwC / アクセンチュア</div>
+    </div>
+  </div>
+
+  <!-- STEP 2: モード -->
+  <div class="step-label" id="step2-label" style="display:none">STEP 2 — タイプを選ぶ</div>
+  <div class="step-row hidden" id="mode-row">
+    <div class="step-card" data-mode="case">
+      <div class="sc-icon">🧠</div>
+      <div class="sc-title">ケース面接</div>
+      <div class="sc-sub">Problem Solving</div>
+    </div>
+    <div class="step-card" data-mode="fermi">
+      <div class="sc-icon">🔢</div>
+      <div class="sc-title">フェルミ推定</div>
+      <div class="sc-sub">Estimation</div>
+    </div>
+  </div>
+
+  <!-- STEP 3: お題 -->
+  <div id="topic-area" class="topic-section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><div class="step-label" style="margin-bottom:0">STEP 3 — お題を選ぶ</div></div>
+    <div class="cat-filter" id="cat-filter"></div>
+    <div class="tgrid" id="tgrid"></div>
+  </div>
+
+  <button class="btn-go" id="start-btn" disabled>面接を開始する →</button>
+</div>
+
+<!-- ===== THINK ===== -->
+<div id="s-think">
+  <div class="think-box">
+    <h2>🧠 思考タイム</h2>
+    <div class="think-prompt" id="think-prompt">—</div>
+    <div id="think-cd">05:00</div>
+    <div class="think-hint">準備ができたら「開始」を押してください</div>
+    <button class="think-go" id="think-go">面接を開始する →</button>
+  </div>
+</div>
+
+<!-- ===== CHAT ===== -->
+<div id="s-chat">
+  <div class="sess-info">
+    <div class="mode-tag" id="mode-tag">—</div>
+    <div class="sess-title" id="sess-title">—</div>
+    <div class="turn-ct" id="turn-ct">ターン 0</div>
+  </div>
+  <div id="msgs"></div>
+  <div class="typing hidden" id="typing">
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</div>
+
+<!-- ===== EVAL ===== -->
+<div id="s-eval"></div>
+
+</main>
+
+<!-- INPUT BAR -->
+<div class="input-area hidden" id="input-area">
+  <div class="input-inner">
+    <div class="input-row">
+      <textarea id="uinput" placeholder="回答を入力... (Enterで改行、送信は→ボタン)" rows="1"></textarea>
+      <div class="input-btns">
+        <button class="micbtn" id="mic-btn" title="音声入力（日本語）">🎤</button>
+        <button class="sendbtn" id="send-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+    <button class="endbtn" id="end-btn" style="width:100%;height:40px;">終了・評価</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-ov hidden" id="modal">
+  <div class="modal-box">
+    <h3 id="modal-t">確認</h3>
+    <p id="modal-d">よろしいですか？</p>
+    <div class="modal-btns">
+      <button class="mbtn cancel" id="modal-no">キャンセル</button>
+      <button class="mbtn danger" id="modal-yes">終了する</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYWALL MODAL -->
+<div class="modal-ov hidden" id="paywall-modal">
+  <div class="modal-box paywall-box">
+    <div class="pw-eyebrow">有料プランが必要です</div>
+    <h3 class="pw-title">アカウント登録して続ける</h3>
+    <p class="pw-desc">このお題は有料プラン限定です。<br>登録後すぐに練習を始められます。</p>
+    <div class="pw-plans">
+      <div class="pw-plan">
+        <div class="pw-plan-name">Lite</div>
+        <div class="pw-plan-price">¥980<span>/月</span></div>
+        <div class="pw-plan-desc">月8問まで</div>
+        <button class="pw-plan-btn" onclick="alert('準備中です。もうしばらくお待ちください。')">登録してはじめる</button>
+      </div>
+      <div class="pw-plan recommended">
+        <div class="pw-rec-badge">おすすめ</div>
+        <div class="pw-plan-name">Standard</div>
+        <div class="pw-plan-price">¥2,480<span>/月</span></div>
+        <div class="pw-plan-desc">月20問まで</div>
+        <button class="pw-plan-btn pw-plan-btn-accent" onclick="alert('準備中です。もうしばらくお待ちください。')">登録してはじめる</button>
+      </div>
+    </div>
+    <p class="pw-note">すでにアカウントをお持ちの方は →
+      <button class="pw-login-link" onclick="alert('ログイン機能は準備中です。')">ログイン</button>
+    </p>
+    <button class="pw-close" onclick="hidePaywall()">閉じる</button>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// DATA
+// =====================================================================
+const S_CASE = [
+  {cat:"市場参入",title:"大手コンビニの東南アジア参入",prompt:"日本最大手のコンビニチェーンが東南アジア（ベトナム・インドネシア）への本格参入を検討している。参入すべきか、またすべき場合の最適戦略・優先国・ビジネスモデルを提案せよ。"},
+  {cat:"市場参入",title:"電力会社のEV充電ビジネス参入",prompt:"大手電力会社がEV充電インフラ事業への参入を検討している。市場の魅力度・競合状況・参入の是非・具体的な参入戦略を提案せよ。"},
+  {cat:"市場参入",title:"メガバンクのアフリカ金融事業",prompt:"日本のメガバンクがサブサハラアフリカへのリテールバンキング進出を検討している。参入の可否と優先国、参入方法を提案せよ。"},
+  {cat:"売上改善",title:"高級ホテルの稼働率低下",free:true,prompt:"【背景】東京・六本木エリアに位置する5つ星ホテル「The Roppongi Grand」（客室数280室・平均客室単価8万円）の稼働率が過去3年で78%→58%に急落した。同期間に競合の外資系ラグジュアリーホテルが3棟開業している。【クライアントの要望】稼働率低下の根本原因を特定し、12ヶ月以内に稼働率を70%以上に回復させる施策を優先順位付きで提案せよ。"},
+  {cat:"売上改善",title:"SaaS企業のチャーン率改善",prompt:"B2B SaaS企業の月次チャーンレートが2%→5%に上昇しARRが減少している。原因仮説を立て、改善施策を提案せよ。"},
+  {cat:"M&A",title:"製薬大手のAI創薬スタートアップ買収",prompt:"大手製薬会社がAI創薬スタートアップの買収を検討している。戦略的意義・評価フレームワーク・統合リスクを検討し、買収の是非を判断せよ。"},
+  {cat:"M&A",title:"通信キャリアのメディア企業買収",prompt:"国内大手通信キャリアが動画配信・コンテンツ制作会社の買収を検討している。戦略的整合性・財務的妥当性・主要リスクを評価せよ。"},
+  {cat:"成長戦略",title:"食品大手の5年で売上2倍",prompt:"国内食品メーカーが今後5年で売上を倍増させる成長戦略を検討せよ。地域・製品・チャネル・M&Aの観点から優先施策を提案せよ。"},
+  {cat:"成長戦略",title:"地方銀行のデジタル変革",prompt:"人口減少・低金利に苦しむ地方銀行が、デジタル化を活用して持続的成長を実現する戦略を検討せよ。"},
+  {cat:"ターンアラウンド",title:"アパレルブランドの2年再建",prompt:"人気アパレルブランドが債務超過に陥り、主力銀行から2年以内の黒字化を求められている。再建計画を立案せよ。"},
+  {cat:"新規事業",title:"損保会社の自動運転時代の新事業",prompt:"自動運転普及で自動車保険市場縮小が見込まれる大手損保会社の次の収益の柱となる事業を提案せよ。"},
+  {cat:"新規事業",title:"総合商社のヘルスケア新規事業",prompt:"総合商社が少子高齢化・デジタルヘルスの成長を機に、ヘルスケア領域で新規事業を立ち上げる戦略を検討せよ。"},
+];
+const S_FERMI = [
+  {cat:"市場規模",title:"日本のコーヒー市場の年間規模",free:true,prompt:"【お題】日本のコーヒー市場の年間市場規模（金額）を推定せよ。【ヒント】市場は①缶・ペットボトルコーヒー ②コンビニコーヒー ③喫茶店・カフェ ④家庭用（豆・粉・カプセル）の4セグメントで構成される。各セグメントを分解して積み上げること。"},
+  {cat:"市場規模",title:"日本のスマホゲーム市場の年間規模",prompt:"日本のスマートフォンゲーム市場の年間総売上を推定せよ。"},
+  {cat:"市場規模",title:"日本のペット関連市場の年間規模",prompt:"日本のペット関連市場（購入・フード・医療・グッズ等）の年間市場規模を推定せよ。"},
+  {cat:"個数・量",title:"日本全国の信号機の数",prompt:"日本全国に設置されている信号機の総数を推定せよ。"},
+  {cat:"個数・量",title:"東京都内のコンビニの数",prompt:"東京都内に存在するコンビニエンスストアの総店舗数を推定せよ。"},
+  {cat:"個数・量",title:"日本全国の美容室の数",prompt:"日本全国に存在する美容室の総数を推定せよ。"},
+  {cat:"売上・収益",title:"渋谷スクランブル交差点近くのスタバの日次売上",prompt:"渋谷スクランブル交差点付近のスターバックス1店舗の1日の売上を推定せよ。"},
+  {cat:"売上・収益",title:"東京ディズニーランドの年間売上",prompt:"東京ディズニーランド（TDL単体）の年間売上高を推定せよ。"},
+];
+const G_CASE = [
+  {cat:"業務改善",title:"コールセンターの対応品質改善",prompt:"大手通信会社のコールセンターにおいて顧客満足度が低下している。原因を整理し、業務改善施策を提案せよ。"},
+  {cat:"業務改善",title:"小売チェーンの在庫管理最適化",prompt:"全国200店舗を展開する小売チェーンで在庫過多・欠品が課題となっている。在庫管理の改善策を提案せよ。"},
+  {cat:"DX推進",title:"製造業の生産ライン可視化",prompt:"中堅製造業がIoTを活用した生産ライン可視化を検討している。導入の優先順位と進め方を提案せよ。"},
+  {cat:"DX推進",title:"自治体の行政手続きデジタル化",prompt:"地方自治体が行政手続きのデジタル化（ペーパーレス化）を進めようとしている。推進計画を策定せよ。"},
+  {cat:"組織・HR",title:"大企業の人事制度改革",prompt:"売上停滞に悩む大企業が社員のモチベーション向上のための人事制度改革を検討している。改善策を提案せよ。"},
+  {cat:"組織・HR",title:"M&A後の組織統合",prompt:"2つの企業が合併した後、組織文化の衝突が起きている。PMI（統合後管理）の進め方を提案せよ。"},
+  {cat:"コスト削減",title:"病院グループの経費削減",prompt:"全国30拠点の病院グループが医療品質を維持しながら経費を削減したい。どの領域を優先すべきか提案せよ。"},
+  {cat:"コスト削減",title:"製造業の調達コスト削減",prompt:"部品調達コストの20%削減を目標とする製造業クライアントへの改善施策を提案せよ。"},
+];
+const G_FERMI = [
+  {cat:"身近な推定",title:"スタバ渋谷店の1日の売上",prompt:"渋谷にあるスターバックス1店舗の1日の売上を推定せよ。"},
+  {cat:"身近な推定",title:"コンビニ1店舗の1日の売上",prompt:"駅前にあるコンビニエンスストア1店舗の1日の売上を推定せよ。"},
+  {cat:"身近な推定",title:"東京都内のタクシーの台数",prompt:"東京都内を走るタクシーの総台数を推定せよ。"},
+  {cat:"身近な推定",title:"日本全国の美容室の数",prompt:"日本全国に存在する美容室の総数を推定せよ。"},
+  {cat:"身近な推定",title:"山手線1編成の乗客数（通勤ラッシュ時）",prompt:"通勤ラッシュ時の山手線1編成に乗っている乗客の総数を推定せよ。"},
+  {cat:"身近な推定",title:"東京ドームに入る砂の数",prompt:"東京ドームの内部容積を砂粒で満たしたとき、何粒の砂が入るかを推定せよ。"},
+];
+
+// =====================================================================
+// STATE
+// =====================================================================
+let firmType = null;
+let modeType = null;
+let selectedTopic = null;
+let convHistory = [];
+let turnCount = 0;
+let timerElapsed = 0, timerPaused = false, timerInterval = null;
+let thinkInterval = null, thinkSec = 300;
+
+let isEnding = false;
+let currentScreen = 'start';
+
+// =====================================================================
+// FREE LIMIT (2 questions, stored in localStorage)
+// =====================================================================
+const FREE_LIMIT = 2;
+function getFreeUsed() { try { return parseInt(localStorage.getItem('ciq_used') || '0'); } catch(e) { return 0; } }
+function incFreeUsed() { try { localStorage.setItem('ciq_used', getFreeUsed() + 1); } catch(e) {} }
+function isFreeExhausted() { return getFreeUsed() >= FREE_LIMIT; }
+
+// API key is managed server-side
+
+// =====================================================================
+// FREE CARDS (data refs — functions defined later after showThinkScreen)
+// =====================================================================
+
+// =====================================================================
+// TOPIC GRID (paid)
+// =====================================================================
+document.querySelectorAll('#firm-row .step-card').forEach(card => {
+  card.addEventListener('click', () => {
+    if (isFreeExhausted() || true) { // always require login for paid
+      showPaywall(); return;
+    }
+    document.querySelectorAll('#firm-row .step-card').forEach(c => c.classList.remove('sel'));
+    card.classList.add('sel');
+    firmType = card.dataset.firm;
+    document.getElementById('step2-label').style.display = 'block';
+    document.getElementById('mode-row').classList.remove('hidden');
+    modeType = null; selectedTopic = null;
+    document.querySelectorAll('#mode-row .step-card').forEach(c => c.classList.remove('sel'));
+    document.getElementById('topic-area').classList.remove('show');
+    document.getElementById('start-btn').disabled = true;
+  });
+});
+
+document.querySelectorAll('#mode-row .step-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('#mode-row .step-card').forEach(c => c.classList.remove('sel'));
+    card.classList.add('sel');
+    modeType = card.dataset.mode;
+    selectedTopic = null;
+    document.getElementById('start-btn').disabled = true;
+    buildTopicGrid();
+    document.getElementById('topic-area').classList.add('show');
+  });
+});
+
+function buildTopicGrid() {
+  const topics = firmType === 'strategy'
+    ? (modeType === 'case' ? S_CASE : S_FERMI)
+    : (modeType === 'case' ? G_CASE : G_FERMI);
+
+  const cats = ['すべて', ...new Set(topics.map(t => t.cat))];
+  const cf = document.getElementById('cat-filter');
+  cf.innerHTML = '';
+  cats.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (c === 'すべて' ? ' act' : '');
+    btn.textContent = c;
+    btn.addEventListener('click', () => {
+      cf.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('act'));
+      btn.classList.add('act');
+      document.querySelectorAll('.tc').forEach(el => {
+        el.style.display = (c === 'すべて' || el.dataset.cat === c) ? '' : 'none';
+      });
+    });
+    cf.appendChild(btn);
+  });
+
+  const grid = document.getElementById('tgrid');
+  grid.innerHTML = '';
+  const freeUsed = getFreeUsed();
+  const allFreeUsed = isFreeExhausted();
+
+  topics.forEach(t => {
+    const el = document.createElement('div');
+    const isLocked = allFreeUsed ? !t.free : false;
+    // If free slots remain, only show free topics; lock others
+    const isLockedPartial = !allFreeUsed && !t.free;
+    const locked = isLockedPartial;
+
+    el.className = 'tc' + (locked ? ' tc-locked' : '');
+    el.dataset.cat = t.cat;
+    const badge = t.free ? '<span class="tc-free-badge">無料</span>' : (locked ? '<span class="tc-lock-badge">🔒</span>' : '');
+    el.innerHTML = '<div class="tc-cat">' + t.cat + '</div><div class="tc-title">' + t.title + badge + '</div>';
+
+    if (!locked) {
+      el.addEventListener('click', () => {
+        if (allFreeUsed && !t.free) { showPaywall(); return; }
+        document.querySelectorAll('.tc').forEach(c => c.classList.remove('sel'));
+        el.classList.add('sel');
+        selectedTopic = t;
+        document.getElementById('start-btn').disabled = false;
+      });
+    } else {
+      el.addEventListener('click', () => showPaywall());
+    }
+    grid.appendChild(el);
+  });
+
+  // Show free counter
+  const counter = document.getElementById('free-counter');
+  if (counter) {
+    const remaining = Math.max(0, FREE_LIMIT - freeUsed);
+    if (remaining > 0) {
+      counter.textContent = '無料残り ' + remaining + '問';
+      counter.style.display = 'inline-block';
+    } else {
+      counter.textContent = '無料終了';
+      counter.style.display = 'inline-block';
+      counter.style.color = 'var(--accent)';
+    }
+  }
+}
+
+// =====================================================================
+// START → THINK → INTERVIEW
+// =====================================================================
+document.getElementById('start-btn').addEventListener('click', () => {
+  if (!firmType || !modeType || !selectedTopic) return;
+  if (!selectedTopic.free) { showPaywall(); return; }
+  showThinkScreen();
+});
+
+function showThinkScreen() {
+  setScreen('think');
+  document.getElementById('back-btn').style.display = 'block';
+  document.getElementById('hlabel').style.display = 'block';
+  document.getElementById('hlabel').textContent = selectedTopic.title;
+  document.getElementById('sbadge').textContent = '思考中';
+  document.getElementById('sbadge').classList.add('on');
+
+  const label = modeType === 'fermi' ? '【お題】' : '【ケース】';
+  document.getElementById('think-prompt').textContent = label + selectedTopic.prompt;
+
+  thinkSec = 300;
+  updateThinkCD();
+  clearInterval(thinkInterval);
+  thinkInterval = setInterval(() => {
+    thinkSec--;
+    updateThinkCD();
+    if (thinkSec <= 0) clearInterval(thinkInterval);
+  }, 1000);
+
+  document.getElementById('think-go').onclick = () => {
+    clearInterval(thinkInterval);
+    startInterview();
+  };
+}
+
+function updateThinkCD() {
+  const m = String(Math.floor(thinkSec / 60)).padStart(2, '0');
+  const s = String(thinkSec % 60).padStart(2, '0');
+  document.getElementById('think-cd').textContent = m + ':' + s;
+}
+
+async function startInterview() {
+  setScreen('chat');
+  document.getElementById('input-area').classList.remove('hidden');
+  document.getElementById('input-area').style.display = 'flex';
+
+  const tag = document.getElementById('mode-tag');
+  tag.textContent = (firmType === 'strategy' ? '戦略' : '総合') + ' / ' + (modeType === 'case' ? 'ケース' : 'フェルミ');
+  tag.className = 'mode-tag ' + firmType;
+  document.getElementById('sess-title').textContent = selectedTopic.title;
+  document.getElementById('sbadge').textContent = '進行中';
+  document.getElementById('turn-ct').textContent = 'ターン 0';
+
+  // Reset state cleanly
+  convHistory = [];
+  turnCount = 0;
+  isEnding = false;
+  document.getElementById('msgs').innerHTML = '';
+
+  startElapsedTimer();
+
+  // First call: send system prompt trigger as user message
+  // This is the pattern that works reliably — no empty messages array
+  await callClaude('面接を開始してください。', true);
+}
+
+// =====================================================================
+// TIMER
+// =====================================================================
+function startElapsedTimer() {
+  clearInterval(timerInterval);
+  document.getElementById('htimer').style.display = 'flex';
+  timerElapsed = 0; timerPaused = false;
+  updateTDisp();
+  timerInterval = setInterval(() => {
+    if (!timerPaused) { timerElapsed++; updateTDisp(); }
+  }, 1000);
+}
+function updateTDisp() {
+  const m = String(Math.floor(timerElapsed / 60)).padStart(2, '0');
+  const s = String(timerElapsed % 60).padStart(2, '0');
+  document.getElementById('tdisp').textContent = m + ':' + s;
+}
+document.getElementById('tpause').addEventListener('click', () => {
+  timerPaused = !timerPaused;
+  document.getElementById('tpause').textContent = timerPaused ? '▶' : '⏸';
+});
+document.getElementById('treset').addEventListener('click', () => {
+  timerElapsed = 0; timerPaused = false;
+  document.getElementById('tpause').textContent = '⏸';
+  updateTDisp();
+});
+
+// =====================================================================
+// SYSTEM PROMPT
+// =====================================================================
+
+const FREE_HOTEL_PROMPT = `あなたは戦略コンサルティングファームのケース面接官です。
+
+【ケース】東京・六本木エリアの5つ星ホテル「The Roppongi Grand」（客室280室・平均単価8万円）の稼働率が3年で78%→58%に急落。同期間に外資系ラグジュアリーホテルが3棟開業。クライアントは12ヶ月以内に稼働率70%以上への回復を求めている。
+
+【面接の進め方】
+1. 最初のメッセージでこのケースを提示し「まず最初の考え（初期仮説）と、どんな流れで解いていくか教えてください」と求めてください。
+2. ターン2：候補者の構造化を受けて「需要側・供給側のどちらが主因と考えますか？競合ホテル開業の影響をどう定量的に捉えますか？」と深掘りする。
+3. ターン3：施策提案を促す。「ターゲット顧客の再定義と、短期・中長期それぞれの施策を教えてください」と問う。
+4. ターン4：「提案した施策の優先順位とその根拠、実行上の最大リスクは何ですか？」と詰める。
+5. ターン5：「他に言いたいことはありますか？」と聞いてから「それでは面接を終了します。」と明示して終わらせる。
+6. 1回の返答は100〜180字以内。日本語のみ。評価はしない。
+7. 良い回答（収益構造の分解、需要/供給の切り口、優先順位のある施策）には適切に反応し面接を前進させること。`;
+
+const FREE_COFFEE_PROMPT = `あなたはコンサルティングファームのフェルミ推定面接官です。
+
+【お題】日本のコーヒー市場の年間市場規模（金額）を推定せよ。市場は①缶・ペットボトルコーヒー ②コンビニコーヒー ③喫茶店・カフェ ④家庭用（豆・粉・カプセル）の4セグメントで構成される。
+
+【面接の進め方】
+1. 最初のメッセージでこのお題を提示し「まず最初の考え（初期仮説）と、どんな流れで解いていくか教えてください」と求めてください。
+2. ターン2：候補者の分解アプローチを受けて「コンビニコーヒーの市場規模を具体的に計算してみてください。コンビニ店舗数と1日の販売杯数から積み上げてみましょう」と深掘りする。
+3. ターン3：「喫茶店・カフェセグメントについて、店舗数・客単価・回転率の仮定を教えてください」と問う。
+4. ターン4：「4セグメントを合計するといくらになりますか？その数字は実感と合っていますか？どのセグメントの推定が最も不確かだと思いますか？」と確認する。
+5. ターン5：「他に確認したいことはありますか？」と聞いてから「それでは面接を終了します。」と明示して終わらせる。
+6. 1回の返答は100〜150字以内。日本語のみ。評価はしない。
+7. 計算過程を口頭で説明できているか、仮定の根拠があるかを重視すること。`;
+
+function buildSysPrompt() {
+  const isFermi = modeType === 'fermi';
+  const firmLabel = firmType === 'strategy'
+    ? 'McKinsey・Bain・BCG水準の戦略コンサルティングファーム'
+    : 'Deloitte・PwC・アクセンチュア水準の総合コンサルティングファーム';
+  const topicPrompt = selectedTopic ? selectedTopic.prompt : '';
+
+  // Use dedicated prompts for free topics
+  if (selectedTopic && selectedTopic.free) {
+    if (isFermi) return FREE_COFFEE_PROMPT;
+    return FREE_HOTEL_PROMPT;
+  }
+
+  if (isFermi) {
+    return 'あなたは' + firmLabel + 'のフェルミ推定面接官です。\n\nお題: ' + topicPrompt + '\n\n【面接の進め方】\n1. 最初のメッセージでお題を提示し「まず最初の考え（初期仮説）と、どんな流れで解いていくか教えてください」と求めてください。\n2. 候補者の回答を受けて1〜2問の深掘り質問をしてください。定量的な深掘りも積極的に行ってください。\n3. 合計3〜4ターンを目安に、最後に「他に確認したいことはありますか？」と聞いてから「それでは面接を終了します。」と明示して終わらせてください。\n4. 1回の返答は100〜150字以内。\n5. 日本語のみ。評価はしないでください。';
+  } else if (firmType === 'strategy') {
+    return 'あなたはMcKinsey・Bain・BCG水準の戦略コンサルティングファームのケース面接官です。\n\nケース: ' + topicPrompt + '\n\n【面接の進め方】\n1. 最初のメッセージでケースを提示し「まず最初の考え（初期仮説）と、どんな流れで解いていくか教えてください」と求めてください。\n2. 候補者の回答ごとに構造・仮説・定量的な深掘り（「具体的な数字は？」「定量的に考えると？」等）を1〜2問してください。\n3. 合計4〜5ターンを目安に、最後に「他に言いたいことはありますか？」と聞いてから「それでは面接を終了します。」と明示して終わらせてください。\n4. 1回の返答は100〜180字以内。\n5. 日本語のみ。評価はしないでください。';
+  } else {
+    return 'あなたはDeloitte・PwC・アクセンチュア水準の総合コンサルティングファームのケース面接官です。\n\nケース: ' + topicPrompt + '\n\n【面接の進め方】\n1. 最初のメッセージでケースを提示し「まず最初の考え（初期仮説）と、どんな流れで解いていくか教えてください」と求めてください。\n2. 候補者の回答ごとに「なぜ？」「他の可能性は？」「どう実行する？」等で構造化・施策・実行可能性を深掘りしてください。定量的な計算やフェルミ推定は求めないでください。\n3. 合計4〜5ターンを目安に、最後に「他に言いたいことはありますか？」と聞いてから「それでは面接を終了します。」と明示して終わらせてください。\n4. 1回の返答は100〜180字以内。\n5. 日本語のみ。評価はしないでください。';
+  }
+}
+
+// =====================================================================
+// API CALL — works both inside claude.ai and external browsers
+// =====================================================================
+async function callClaudeAPI(messages, sysPrompt, maxTok) {
+  maxTok = maxTok || 600;
+
+  const body = {
+    model: 'claude-haiku-4-5',
+    max_tokens: maxTok,
+    system: sysPrompt,
+    messages: messages
+  };
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    let res;
+    try {
+      res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    } catch (netErr) {
+      // Network error (CORS, offline, etc.)
+      if (attempt < 2) { await sleep(1500); continue; }
+      throw new Error('ネットワークエラー。インターネット接続を確認し、外部ブラウザの場合はAPIキーを設定してください。');
+    }
+
+    if (res.status === 401) {
+      throw new Error('認証エラー(401): APIキーが正しくありません。ページ上部でAPIキーを設定してください。');
+    }
+    if (res.status === 429) {
+      const e = await res.json().catch(() => ({}));
+      const resetsAt = e.resetsAt || (e.windows && e.windows['5h'] && e.windows['5h'].resets_at);
+      let waitMsg = 'しばらくしてから再試行してください。';
+      if (resetsAt) {
+        const diff = Math.ceil((resetsAt * 1000 - Date.now()) / 60000);
+        waitMsg = diff > 60 ? ('約' + Math.ceil(diff/60) + '時間後にリセット') : ('約' + diff + '分後にリセット');
+      }
+      throw { rate: true, msg: 'APIの利用制限に達しました。' + waitMsg };
+    }
+    if (!res.ok) {
+      if (res.status >= 500 && attempt < 2) { await sleep(2000 * (attempt + 1)); continue; }
+      const e = await res.json().catch(() => ({}));
+      throw new Error('API ' + res.status + ': ' + ((e.error && e.error.message) || res.statusText));
+    }
+
+    const data = await res.json();
+    const text = data.content && data.content[0] && data.content[0].text;
+    return text || '';
+  }
+  throw new Error('リクエストが失敗しました。再試行してください。');
+}
+
+// =====================================================================
+// CHAT
+// =====================================================================
+async function callClaude(userMsg, isFirst) {
+  isFirst = isFirst || false;
+  setUI(true);
+
+  // Add user message to history
+  convHistory.push({ role: 'user', content: userMsg });
+  // Only show user message in UI if not the hidden first trigger
+  if (!isFirst) addMsg('user', userMsg);
+
+  try {
+    const sysPrompt = buildSysPrompt();
+    // Safety check — ensure we have valid state
+    if (!selectedTopic || !firmType || !modeType) {
+      throw new Error('セッション状態が不正です。ページを再読み込みしてください。');
+    }
+
+    const reply = await callClaudeAPI(convHistory, sysPrompt, 600);
+    if (!reply) throw new Error('空のレスポンスが返されました。');
+
+    convHistory.push({ role: 'assistant', content: reply });
+    addMsg('ai', reply);
+    turnCount++;
+    document.getElementById('turn-ct').textContent = 'ターン ' + turnCount;
+
+    // Auto-detect interview end
+    if (reply.includes('面接を終了します') && !isEnding) {
+      isEnding = true;
+      setTimeout(() => {
+        confirmModal('面接が終了しました', '評価レポートを表示しますか？', doEvaluate);
+      }, 800);
+    }
+  } catch (err) {
+    // Roll back the user message we just pushed
+    convHistory.pop();
+
+    if (err.rate) {
+      addRateNotice(err.msg);
+    } else {
+      const msg = err.message || 'エラーが発生しました';
+      showToast(msg, 'err');
+      // On first message failure, show helpful message in chat
+      if (isFirst) {
+        addMsg('ai', '⚠️ 接続エラーが発生しました。\n\n' + msg + '\n\nAPIキーを確認してから「開始してください」と入力して送信してください。');
+      }
+    }
+  }
+
+  setUI(false);
+  if (!isFirst) {
+    const inp = document.getElementById('uinput');
+    if (inp) inp.focus();
+  }
+}
+
+function addMsg(role, text) {
+  const c = document.getElementById('msgs');
+  const d = document.createElement('div');
+  d.className = 'msg ' + role;
+  const t = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+  d.innerHTML = '<div class="msg-meta"><span class="msg-role">' + (role === 'ai' ? '面接官' : 'あなた') + '</span><span class="msg-t">' + t + '</span></div><div class="msg-body">' + esc(text) + '</div>';
+  c.appendChild(d);
+  setTimeout(() => d.scrollIntoView({ behavior: 'smooth', block: 'end' }), 50);
+}
+
+function addRateNotice(msg) {
+  const c = document.getElementById('msgs');
+  const d = document.createElement('div');
+  d.className = 'rate-notice';
+  d.innerHTML = '<strong>⚠️ レート制限</strong><br>' + esc(msg);
+  c.appendChild(d);
+  d.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function esc(t) {
+  return String(t)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br>');
+}
+
+function setUI(loading) {
+  document.getElementById('typing').classList.toggle('hidden', !loading);
+  ['send-btn', 'end-btn', 'uinput'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = loading;
+  });
+}
+
+// Send message
+async function sendMsg() {
+  const el = document.getElementById('uinput');
+  const t = (el.value || '').trim();
+  if (!t || el.disabled) return;
+  el.value = '';
+  el.style.height = 'auto';
+  if (isRecording && currentRec) { try { currentRec.stop(); } catch(e) {} isRecording = false; }
+  await callClaude(t, false);
+}
+document.getElementById('send-btn').addEventListener('click', sendMsg);
+// Enterキーは改行のみ。送信はボタンで行う
+document.getElementById('uinput').addEventListener('keydown', function(e) {
+  // Enter = 改行（デフォルト動作）。送信はボタンのみ
+});
+document.getElementById('uinput').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 160) + 'px';
+});
+
+// End / evaluate
+document.getElementById('end-btn').addEventListener('click', () => {
+  if (turnCount < 2) { showToast('最低2ターン会話してください', 'warn'); return; }
+  confirmModal('評価を開始しますか？', turnCount + 'ターンの会話をもとにAIが評価します。', doEvaluate);
+});
+
+// =====================================================================
+// EVALUATE
+// =====================================================================
+async function doEvaluate() {
+  clearInterval(timerInterval);
+  document.getElementById('s-chat').style.display = 'none';
+  document.getElementById('input-area').classList.add('hidden');
+  document.getElementById('htimer').style.display = 'none';
+
+  const evalEl = document.getElementById('s-eval');
+  evalEl.style.display = 'block';
+  evalEl.innerHTML = '<div class="loading-eval"><div class="spin">⚙️</div><p>AIが評価中です...<br>少々お待ちください</p></div>';
+
+  document.getElementById('sbadge').textContent = '評価中...';
+  document.getElementById('sbadge').classList.add('on');
+  currentScreen = 'eval';
+
+  const isFermi = modeType === 'fermi';
+  const axes = isFermi
+    ? ['分解の論理性', '仮定の妥当性', '適応・深化力', '結論の質']
+    : ['初期仮説の質', '構造化・論点整理力', '適応・深化力', '結論・提言の質'];
+
+  // 会話全体（面接官＋候補者）をテキスト化。改行はスペースに変換してJSON破損を防ぐ
+  const convText = convHistory.map(function(m, i) {
+    const role = m.role === 'user' ? '候補者' : '面接官';
+    const text = m.content.replace(/[\r\n]+/g, ' ').substring(0, 400);
+    return role + ': ' + text;
+  }).join(' / ');
+
+  // JSONスキーマを1行で定義（改行を含めるとAIが途中で改行を入れやすくなる）
+  const schema = '{"total":0,"grade":"","grade_guide":"","summary":"","scores":[{"axis":"' + axes[0] + '","score":0,"reason":""},{"axis":"' + axes[1] + '","score":0,"reason":""},{"axis":"' + axes[2] + '","score":0,"reason":""},{"axis":"' + axes[3] + '","score":0,"reason":""}],"strengths":"","improvements":"","model_answer":{"flow":"回答の流れを3ステップで簡潔に","key_point":"最重要ポイント1文","example_conclusion":"模範的な結論の一例（1〜2文）"}}';
+
+  const evalSys = 'あなたはコンサルティングファームのケース面接の厳格な評価者です。必ず有効なJSONのみを返してください。説明文・マークダウン・改行は一切不要です。【採点基準】各軸0〜100点。回答が浅い・短い・論理的でない場合は容赦なく低評価にしてください。2ターン以下や内容が薄い場合はtotalを40点以下にしてください。内容が全くない場合は30点以下。就活生が本番で参考にできる厳正な評価を行ってください。全フィールドを必ず埋めてください。';
+
+  const evalMsg = 'タイプ: ' + (isFermi ? 'フェルミ推定' : 'ケース面接') + ' / ' + (firmType === 'strategy' ? '戦略コンサル' : '総合コンサル') + '。お題: ' + (selectedTopic ? selectedTopic.title : '') + '。ターン数: ' + turnCount + '。会話: ' + convText + '。grade_guideには「〇〇点台: △△レベル（例: 80点台: 内定圏内）」形式で点数帯の目安を書いてください。以下のJSONスキーマに全フィールドを埋めて返してください: ' + schema;
+
+  // 最大3回リトライ（トークン不足・JSON破損対策）
+  let lastErr = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      // max_tokensを大きめに。3回目はさらに増やす
+      const maxTok = attempt < 2 ? 3000 : 4000;
+      const raw = await callClaudeAPI([{ role: 'user', content: evalMsg }], evalSys, maxTok);
+
+      // JSONを抽出（前後の余計なテキストを除去）
+      const match = raw.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error('JSONが見つかりません (raw: ' + raw.substring(0, 80) + ')');
+
+      let cleaned = match[0];
+      // 制御文字を除去
+      cleaned = cleaned.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, '');
+
+      let result;
+      try {
+        result = JSON.parse(cleaned);
+      } catch (parseErr) {
+        // 軽微な修復を試みる（trailing comma等）
+        const repaired = cleaned.replace(/,\s*([}\]])/g, '$1');
+        result = JSON.parse(repaired);
+      }
+
+      // 必須フィールドの存在確認
+      if (typeof result.total !== 'number' || !Array.isArray(result.scores)) {
+        throw new Error('JSONの構造が不正です');
+      }
+
+      renderEval(result);
+      document.getElementById('sbadge').textContent = '評価完了';
+      document.getElementById('sbadge').classList.remove('on');
+      return; // 成功したら終了
+
+    } catch (err) {
+      lastErr = err;
+      if (err.rate) break; // レート制限はリトライしない
+      if (attempt < 2) {
+        // 次のリトライ前にローディング表示を更新
+        evalEl.innerHTML = '<div class="loading-eval"><div class="spin">⚙️</div><p>再試行中... (' + (attempt + 2) + '/3)<br>少々お待ちください</p></div>';
+        await sleep(1500);
+      }
+    }
+  }
+
+  // 全リトライ失敗
+  const msg = lastErr && lastErr.rate ? lastErr.msg : ((lastErr && lastErr.message) || '不明なエラー');
+  evalEl.innerHTML = '<div class="loading-eval"><p style="color:var(--accent)">⚠️ 評価の取得に失敗しました。<br><small>' + esc(msg) + '</small></p><br><button class="retry-btn" onclick="doEvaluate()">再試行</button><button class="retry-btn" style="margin-left:10px;border-color:var(--muted);color:var(--muted)" onclick="resetApp()">最初に戻る</button></div>';
+  document.getElementById('sbadge').textContent = 'エラー';
+  document.getElementById('sbadge').classList.remove('on');
+} // end doEvaluate
+
+function renderEval(r) {
+  const evalEl = document.getElementById('s-eval');
+  const firmLabel = firmType === 'strategy' ? '戦略コンサル' : '総合コンサル';
+  const modeLabel = modeType === 'case' ? 'ケース面接' : 'フェルミ推定';
+  const topicTitle = selectedTopic ? selectedTopic.title : '';
+
+  let scoreCards = '';
+  (r.scores || []).forEach(function(s) {
+    scoreCards += '<div class="sc-card"><div class="sc-lbl">' + esc(s.axis) + '</div><div class="sc-num">' + s.score + '</div><div class="sc-reason">' + esc(s.reason || '') + '</div><div class="sc-bar"><div class="sc-fill" data-score="' + s.score + '"></div></div></div>';
+  });
+
+  let maHTML = '';
+  if (r.model_answer) {
+    const ma = r.model_answer;
+    if (ma.flow) maHTML += '<div class="ma-sec"><div class="ma-lbl">📋 回答の流れ</div><div class="ma-txt">' + esc(ma.flow) + '</div></div>';
+    if (ma.key_point) maHTML += '<div class="ma-sec"><div class="ma-lbl">💡 最重要ポイント</div><div class="ma-txt">' + esc(ma.key_point) + '</div></div>';
+    if (ma.example_conclusion) maHTML += '<div class="ma-sec"><div class="ma-lbl">🎯 模範的な結論例</div><div class="ma-txt">' + esc(ma.example_conclusion) + '</div></div>';
+  }
+
+  const total = r.total || 0;
+  const shareText = encodeURIComponent('CaseIQでケース面接に挑戦！\n「' + topicTitle + '」\nスコア: ' + total + '/100点（' + esc(r.grade || '') + '）\nhttps://caseiq-v2.vercel.app');
+
+  evalEl.innerHTML = '<div class="eval-hd"><div class="eyebrow">セッション完了</div><h2>評価レポート</h2><div class="eval-meta">' + firmLabel + ' ／ ' + modeLabel + ' ／ ' + esc(topicTitle) + '</div></div>'
+    + '<div class="stats-row"><div class="sbox"><div class="sl">総ターン数</div><div class="sv">' + turnCount + '</div></div><div class="sbox"><div class="sl">所要時間</div><div class="sv" style="font-size:16px">' + fmtSec(timerElapsed) + '</div></div><div class="sbox"><div class="sl">ファーム種別</div><div class="sv" style="font-size:14px">' + firmLabel + '</div></div></div>'
+    + '<div class="overall-box"><div class="ov-score">' + total + '<span>/100</span></div><div class="ov-text"><h3>' + esc(r.grade || '—') + '</h3><p>' + esc(r.summary || '—') + '</p></div></div>'
+    + (r.grade_guide ? '<div class="grade-guide-box"><div class="gg-title">📊 点数の目安</div><div class="gg-text">' + esc(r.grade_guide) + '</div></div>' : '')
+    + '<div class="score-grid">' + scoreCards + '</div>'
+    + '<div class="fb-block"><h4>良かった点 <span class="tag good">強み</span></h4><p>' + esc(r.strengths || '—') + '</p></div>'
+    + '<div class="fb-block"><h4>改善すべき点 <span class="tag imp">改善</span></h4><p>' + esc(r.improvements || '—') + '</p></div>'
+    + '<div class="ma-block"><div class="ma-hd" onclick="toggleMA()"><h4>📖 模範回答を見る</h4><span class="ma-icon" id="ma-icon">▼</span></div><div class="ma-body" id="ma-body">' + maHTML + '</div></div>'
+    + '<div class="share-row">'
+    + '<button class="share-btn x-btn" onclick="window.open('https://twitter.com/intent/tweet?text=' + shareText + '','_blank')">𝕏 シェア</button>'
+    + '<button class="share-btn img-btn" onclick="saveAsImage()">📸 画像保存</button>'
+    + '</div>'
+    + '<button class="retry-btn" onclick="resetApp()">もう一度挑戦する</button>';
+
+  setTimeout(function() {
+    evalEl.querySelectorAll('.sc-fill').forEach(function(el) {
+      el.style.width = el.dataset.score + '%';
+    });
+  }, 150);
+  evalEl.scrollIntoView({ behavior: 'smooth' });
+}
+
+function toggleMA() {
+  const body = document.getElementById('ma-body');
+  const icon = document.getElementById('ma-icon');
+  if (body) body.classList.toggle('open');
+  if (icon) icon.classList.toggle('open');
+}
+
+function fmtSec(s) { return Math.floor(s / 60) + '分' + (s % 60) + '秒'; }
+
+// =====================================================================
+// SCREEN MANAGEMENT
+// =====================================================================
+function setScreen(name) {
+  currentScreen = name;
+  const screens = ['s-start', 's-think', 's-chat', 's-eval'];
+  screens.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  const target = document.getElementById('s-' + name);
+  if (target) target.style.display = 'block';
+}
+
+// =====================================================================
+// BACK BUTTON — context-aware
+// =====================================================================
+document.getElementById('back-btn').addEventListener('click', () => {
+  if (currentScreen === 'think') {
+    clearInterval(thinkInterval);
+    setScreen('start');
+    document.getElementById('back-btn').style.display = 'none';
+    document.getElementById('hlabel').style.display = 'none';
+    document.getElementById('sbadge').textContent = '準備中';
+    document.getElementById('sbadge').classList.remove('on');
+    setTimeout(() => {
+      const ta = document.getElementById('topic-area');
+      if (ta) ta.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  } else if (currentScreen === 'chat') {
+    confirmModal('会話を終了しますか？', 'お題選択に戻ります。会話は失われます。', () => {
+      clearInterval(timerInterval);
+      if (isRecording && currentRec) { try { currentRec.stop(); } catch(e) {} isRecording = false; }
+      document.getElementById('input-area').classList.add('hidden');
+      document.getElementById('htimer').style.display = 'none';
+      document.getElementById('msgs').innerHTML = '';
+      convHistory = []; turnCount = 0; isEnding = false;
+      setScreen('start');
+      document.getElementById('back-btn').style.display = 'none';
+      document.getElementById('hlabel').style.display = 'none';
+      document.getElementById('sbadge').textContent = '準備中';
+      document.getElementById('sbadge').classList.remove('on');
+      setTimeout(() => {
+        const ta = document.getElementById('topic-area');
+        if (ta) ta.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    });
+  } else if (currentScreen === 'eval') {
+    document.getElementById('s-eval').innerHTML = '';
+    setScreen('start');
+    document.getElementById('back-btn').style.display = 'none';
+    document.getElementById('hlabel').style.display = 'none';
+    document.getElementById('sbadge').textContent = '準備中';
+    document.getElementById('sbadge').classList.remove('on');
+    setTimeout(() => {
+      const ta = document.getElementById('topic-area');
+      if (ta) ta.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  }
+});
+
+// =====================================================================
+// PAYWALL
+// =====================================================================
+function showPaywall() {
+  const ov = document.getElementById('paywall-modal');
+  if (ov) ov.classList.remove('hidden');
+}
+function hidePaywall() {
+  const ov = document.getElementById('paywall-modal');
+  if (ov) ov.classList.add('hidden');
+}
+
+// =====================================================================
+// VOICE INPUT
+// =====================================================================
+let isRecording = false;
+
+function startVoice() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) { showToast('このブラウザは音声入力に対応していません（iOS Safariは非対応）', 'warn'); return; }
+
+  const rec = new SpeechRec();
+  rec.lang = 'ja-JP';
+  rec.continuous = false;
+  rec.interimResults = true;
+
+  const inp = document.getElementById('uinput');
+  const btn = document.getElementById('mic-btn');
+  const base = inp.value;
+
+  rec.onstart = function() {
+    isRecording = true;
+    if (btn) { btn.classList.add('recording'); btn.title = '録音中... クリックで停止'; }
+  };
+  rec.onresult = function(e) {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    inp.value = base + final + interim;
+    inp.style.height = 'auto';
+    inp.style.height = Math.min(inp.scrollHeight, 160) + 'px';
+  };
+  rec.onend = function() {
+    isRecording = false;
+    if (btn) { btn.classList.remove('recording'); btn.title = '音声入力'; }
+  };
+  rec.onerror = function(e) {
+    isRecording = false;
+    if (btn) btn.classList.remove('recording');
+    if (e.error === 'not-allowed') {
+      showToast('マイクへのアクセスを許可してください', 'warn');
+    } else if (e.error !== 'no-speech') {
+      showToast('音声認識エラー: ' + e.error, 'warn');
+    }
+  };
+
+  try { rec.start(); } catch(e) { showToast('マイクの起動に失敗: ' + e.message, 'warn'); }
+  return rec;
+}
+
+let currentRec = null;
+document.getElementById('mic-btn').addEventListener('click', () => {
+  if (isRecording && currentRec) {
+    try { currentRec.stop(); } catch(e) {}
+    isRecording = false;
+  } else {
+    currentRec = startVoice();
+  }
+});
+
+// =====================================================================
+// UTILITIES
+// =====================================================================
+function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+function confirmModal(title, desc, onYes) {
+  document.getElementById('modal-t').textContent = title;
+  document.getElementById('modal-d').textContent = desc;
+  document.getElementById('modal').classList.remove('hidden');
+  document.getElementById('modal-yes').onclick = function() {
+    document.getElementById('modal').classList.add('hidden');
+    onYes();
+  };
+  document.getElementById('modal-no').onclick = function() {
+    document.getElementById('modal').classList.add('hidden');
+  };
+}
+
+function showToast(msg, type) {
+  type = type || 'err';
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 6000);
+}
+
+// =====================================================================
+// RESET
+// =====================================================================
+function resetApp() {
+  clearInterval(timerInterval);
+  clearInterval(thinkInterval);
+  if (isRecording && currentRec) { try { currentRec.stop(); } catch(e) {} isRecording = false; }
+  convHistory = []; turnCount = 0; isEnding = false;
+  timerElapsed = 0; timerPaused = false;
+
+  document.getElementById('input-area').classList.add('hidden');
+  document.getElementById('htimer').style.display = 'none';
+  document.getElementById('msgs').innerHTML = '';
+  document.getElementById('s-eval').innerHTML = '';
+  document.getElementById('back-btn').style.display = 'none';
+  document.getElementById('hlabel').style.display = 'none';
+  document.getElementById('sbadge').textContent = '準備中';
+  document.getElementById('sbadge').classList.remove('on');
+  document.getElementById('tpause').textContent = '⏸';
+  document.getElementById('tdisp').textContent = '00:00';
+
+  setScreen('start');
+  window.scrollTo(0, 0);
+}
+
+// Initialize — show start screen
+// =====================================================================
+// FREE CARDS INIT (here so showThinkScreen/showToast are already defined)
+// =====================================================================
+const FREE_HOTEL = S_CASE.find(t => t.free && t.title.includes('ホテル'));
+const FREE_COFFEE = S_FERMI.find(t => t.free && t.title.includes('コーヒー'));
+
+function selectFreeCard(which) {
+  if (which === 'hotel') {
+    selectedTopic = FREE_HOTEL;
+    firmType = 'strategy';
+    modeType = 'case';
+  } else {
+    selectedTopic = FREE_COFFEE;
+    firmType = 'strategy';
+    modeType = 'fermi';
+  }
+  if (which === 'hotel') localStorage.setItem('ciq_used_hotel', '1');
+  if (which === 'coffee') localStorage.setItem('ciq_used_coffee', '1');
+  incFreeUsed();
+  showThinkScreen();
+}
+
+function initFreeCards() {
+  const hotelUsed = localStorage.getItem('ciq_used_hotel') === '1';
+  const coffeeUsed = localStorage.getItem('ciq_used_coffee') === '1';
+  const hotelCard = document.getElementById('free-card-hotel');
+  const coffeeCard = document.getElementById('free-card-coffee');
+
+  if (hotelUsed) {
+    hotelCard.classList.add('used');
+    hotelCard.innerHTML += '<div class="free-card-used-label">✓ 使用済み</div>';
+  }
+  if (coffeeUsed) {
+    coffeeCard.classList.add('used');
+    coffeeCard.innerHTML += '<div class="free-card-used-label">✓ 使用済み</div>';
+  }
+
+  hotelCard.addEventListener('click', () => {
+    if (hotelUsed) { showToast('このお題は使用済みです', 'warn'); return; }
+    selectFreeCard('hotel');
+  });
+  coffeeCard.addEventListener('click', () => {
+    if (coffeeUsed) { showToast('このお題は使用済みです', 'warn'); return; }
+    selectFreeCard('coffee');
+  });
+}
+
+setScreen('start');
+initFreeCards();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+async function saveAsImage() {
+  const el = document.getElementById('s-eval');
+  if (!el) return;
+  showToast('画像を生成中...', 'info');
+  try {
+    const canvas = await html2canvas(el, { backgroundColor: '#f5f0e8', scale: 2, useCORS: true });
+    const a = document.createElement('a');
+    a.download = 'CaseIQ_result.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  } catch(e) {
+    showToast('画像保存に失敗しました', 'warn');
+  }
+}
+</script>
+
+</body>
+</html>
