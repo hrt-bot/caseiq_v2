@@ -473,17 +473,48 @@ const SUPA_KEY = 'sb_publishable_71fTsGu_jZkTyW3BoU5QYQ_S9rfdlvj';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 
 let currentUser = null;
+let currentPlan = null;
 
 async function initAuth() {
-  const { data: { session } } = await supa.auth.getSession();
-  if (session) { currentUser = session.user; updateAuthUI(); }
+  let session = null;
+  try {
+    const { data } = await supa.auth.getSession();
+    session = data?.session;
+  } catch(e) {
+    try { await supa.auth.signOut(); } catch(_) {}
+  }
+  if (session) {
+    currentUser = session.user;
+    currentPlan = session.user?.user_metadata?.plan || null;
+    updateAuthUI();
+  }
   supa.auth.onAuthStateChange((_event, session) => {
     currentUser = session ? session.user : null;
+    currentPlan = session?.user?.user_metadata?.plan || null;
     updateAuthUI();
   });
 }
 
 function updateAuthUI() {
+  // --- Plan badge ---
+  let _badge = document.getElementById('plan-badge');
+  if (!_badge) {
+    _badge = document.createElement('span');
+    _badge.id = 'plan-badge';
+    _badge.style.cssText = 'font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.05em;margin-right:12px;transition:all .3s;';
+    const hcenter = document.querySelector('.hcenter');
+    if (hcenter) hcenter.prepend(_badge);
+  }
+  if (currentPlan === 'standard') {
+    _badge.textContent = 'Standard'; _badge.style.background = '#1a6b3a'; _badge.style.color = '#fff';
+  } else if (currentPlan === 'lite') {
+    _badge.textContent = 'Lite'; _badge.style.background = '#1a4a7a'; _badge.style.color = '#fff';
+  } else if (currentUser) {
+    _badge.textContent = 'Free'; _badge.style.background = '#8a8578'; _badge.style.color = '#fff';
+  } else {
+    _badge.textContent = '';
+  }
+  // --- End plan badge ---
   const btn = document.getElementById('auth-btn');
   if (!btn) return;
   if (currentUser) {
