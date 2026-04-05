@@ -621,6 +621,17 @@ async function startCheckout(priceId) {
   if (params.get('payment') === 'success') {
     history.replaceState({}, '', '/');
     setTimeout(() => showToast('🎉 登録完了！有料プランが有効になりました', 'ok'), 500);
+    // プラン情報を即座に更新
+    setTimeout(async () => {
+      try {
+        const { data } = await supa.auth.refreshSession();
+        if (data?.session) {
+          currentUser = data.session.user;
+          currentPlan = data.session.user?.user_metadata?.plan || null;
+          updateAuthUI();
+        }
+      } catch(e) { console.warn('refresh failed:', e.message); }
+    }, 2000);
   } else if (params.get('payment') === 'cancel') {
     history.replaceState({}, '', '/');
   }
