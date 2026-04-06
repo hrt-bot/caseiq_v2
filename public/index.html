@@ -729,7 +729,15 @@ function isFreeExhausted() { return getFreeUsed() >= FREE_LIMIT; }
 // =====================================================================
 document.querySelectorAll('#firm-row .step-card').forEach(card => {
   card.addEventListener('click', () => {
-    showPaywall();
+    if (!currentUser || !currentPlan || currentPlan === 'free') {
+      showPaywall(); return;
+    }
+    // 有料ユーザー: firmを選択してstep2を表示
+    document.querySelectorAll('#firm-row .step-card').forEach(c => c.classList.remove('sel'));
+    card.classList.add('sel');
+    firmType = card.dataset.firm;
+    document.getElementById('step2-label').style.display = '';
+    document.getElementById('mode-row').classList.remove('hidden');
   });
 });
 
@@ -770,7 +778,7 @@ function buildTopicGrid() {
   const grid = document.getElementById('tgrid');
   grid.innerHTML = '';
   topics.forEach(t => {
-    const locked = !t.free;
+    const locked = !t.free && (!currentPlan || currentPlan === 'free');
     const el = document.createElement('div');
     el.className = 'tc' + (locked ? ' tc-locked' : '');
     el.dataset.cat = t.cat;
@@ -794,7 +802,7 @@ function buildTopicGrid() {
 // =====================================================================
 document.getElementById('start-btn').addEventListener('click', () => {
   if (!selectedTopic) return;
-  if (!selectedTopic.free) { showPaywall(); return; }
+  if (!selectedTopic.free && (!currentPlan || currentPlan === 'free')) { showPaywall(); return; }
   showThinkScreen();
 });
 
