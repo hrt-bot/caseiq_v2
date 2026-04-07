@@ -16,6 +16,7 @@ body{background:var(--paper);color:var(--ink);font-family:'Noto Sans JP',sans-se
 header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--line);background:var(--paper);position:sticky;top:0;z-index:100;gap:12px;}
 .logo{font-family:'Shippori Mincho',serif;font-weight:800;font-size:20px;letter-spacing:.05em;flex-shrink:0;}
 .logo span{color:var(--accent)
+.logo-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#185FA5;margin-right:6px;vertical-align:middle;margin-bottom:2px;}
 .hcenter{flex:1;display:flex;align-items:center;gap:10px;min-width:0;}
 .back-btn{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border:1.5px solid var(--line);background:white;border-radius:2px;cursor:pointer;color:var(--muted);transition:all .2s;white-space:nowrap;display:none;}
 .back-btn:hover{border-color:var(--accent);color:var(--accent);}
@@ -261,35 +262,32 @@ textarea:focus{border-color:var(--blue);}
 <body>
 
 <header>
-  <div class="logo">Case<span>IQ</span></div>
-  <div class="hcenter">
-    <button class="back-btn" id="back-btn">← 戻る</button>
-    <span class="hlabel" id="hlabel"></span>
-  </div>
-  <div class="hright">
-    <div id="htimer">
-      <div>
-        <div style="font-size:9px;letter-spacing:.12em;opacity:.55;text-transform:uppercase;margin-bottom:1px">経過</div>
-        <div id="tdisp">00:00</div>
-      </div>
-      <div style="display:flex;gap:5px;">
-        <button class="tbtn" id="tpause">⏸</button>
-        <button class="tbtn" id="treset">↺</button>
-      </div>
-    </div>
-    <div class="sbadge" id="sbadge">準備中</div>
-    <button class="auth-hbtn" id="auth-btn">ログイン / 登録</button>
-  </div>
-</header>
-
+    <div class="logo"><span class="logo-dot"></span>CaseIQ</div>
+      <div class="hcenter">
+          <button class="back-btn" id="back-btn">← 戻る</button>
+              <span class="hlabel" id="hlabel"></span>
+                </div>
+                  <div class="hright">
+                      <div id="htimer">
+                            <div>
+                                    <div style="font-size:9px;letter-spacing:.12em;opacity:.55;text-transform:uppercase;margin-bottom:1px">経過</div>
+                                            <div id="tdisp">00:00</div>
+                                                  </div>
+                                                        <div style="display:flex;gap:5px;">
+                                                                <button class="tbtn" id="tpause">⏸</button>
+                                                                        <button class="tbtn" id="treset">↩</button>
+                                                                              </div>
+                                                                                  </div>
+                                                                                      <div class="sbadge" id="sbadge">準備中</div>
+                                                                                          <button class="auth-hbtn" id="auth-btn">ログイン</button>
+                                                                                            </div>
+                                                                                            </header>>
 <main>
 
 <div id="s-start">
-  <div class="eyebrow">AI ケース面接トレーナー</div>
   <h1>実戦で鍛える<br><em>コンサル思考</em></h1>
-  <p class="sub">実際のファームで出されたお題でAIと対話練習。5分思考→対話→4軸評価＋模範回答。</p>
+    <p class="sub">AIと1対1で、本番さながらのケース練習。</p>
 
-  <div class="step-label">無料で体験できるお題</div>
   <div class="free-cards-row" id="free-cards-row">
     <div class="free-card" id="free-card-hotel">
       <div class="free-card-badge">無料 · ケース面接</div>
@@ -305,12 +303,6 @@ textarea:focus{border-color:var(--blue);}
 
   <button class="btn-go hidden" id="free-start-btn">面接を開始する →</button>
 
-  <div class="paid-section-hd">
-    <div class="step-label" style="margin-bottom:0">有料プランのお題</div>
-    <span class="paid-badge">登録が必要</span>
-  </div>
-
-  <div class="step-label" style="margin-top:16px">STEP 1 — ファームを選ぶ</div>
   <div class="step-row" id="firm-row">
     <div class="step-card" data-firm="strategy">
       <div class="sc-icon">🏆</div>
