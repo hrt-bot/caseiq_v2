@@ -262,26 +262,26 @@ textarea:focus{border-color:var(--blue);}
 <body>
 
 <header>
-    <div class="logo"><span class="logo-dot"></span>CaseIQ</div>
-      <div class="hcenter">
-          <button class="back-btn" id="back-btn">← 戻る</button>
-              <span class="hlabel" id="hlabel"></span>
-                </div>
-                  <div class="hright">
-                      <div id="htimer">
-                            <div>
-                                    <div style="font-size:9px;letter-spacing:.12em;opacity:.55;text-transform:uppercase;margin-bottom:1px">経過</div>
-                                            <div id="tdisp">00:00</div>
-                                                  </div>
-                                                        <div style="display:flex;gap:5px;">
-                                                                <button class="tbtn" id="tpause">⏸</button>
-                                                                        <button class="tbtn" id="treset">↩</button>
-                                                                              </div>
-                                                                                  </div>
-                                                                                      <div class="sbadge" id="sbadge">準備中</div>
-                                                                                          <button class="auth-hbtn" id="auth-btn">ログイン</button>
-                                                                                            </div>
-                                                                                            </header>>
+  <div class="logo"><span class="logo-dot"></span>CaseIQ</div>
+  <div class="hcenter">
+    <button class="back-btn" id="back-btn">← 戻る</button>
+    <span class="hlabel" id="hlabel"></span>
+  </div>
+  <div class="hright">
+    <div id="htimer">
+      <div>
+        <div style="font-size:9px;letter-spacing:.12em;opacity:.55;text-transform:uppercase;margin-bottom:1px">経過</div>
+        <div id="tdisp">00:00</div>
+      </div>
+      <div style="display:flex;gap:5px;">
+        <button class="tbtn" id="tpause">⏸</button>
+        <button class="tbtn" id="treset">↩</button>
+      </div>
+    </div>
+    <div class="sbadge" id="sbadge">準備中</div>
+    <button class="auth-hbtn" id="auth-btn">ログイン</button>
+  </div>
+</header>>
 <main>
 
 <div id="s-start">
@@ -1123,7 +1123,7 @@ function renderEval(r) {
   window._shareText = encodeURIComponent('CaseIQでケース面接に挑戦！\n「' + topicTitle + '」\nスコア: ' + (r.total||0) + '/100点（' + esc(r.grade||'') + '）\nhttps://caseiq-v2.vercel.app');
 
   evalEl.innerHTML =
-    '<div class="eval-hd"><div class="eyebrow">セッション完了</div><h2>評価レポート</h2><div class="eval-meta">' + firmLabel + ' ／ ' + modeLabel + ' ／ ' + esc(topicTitle) + '</div></div>'
+    '<div class="eval-hd"><h2>評価レポート</h2><div class="eval-meta">' + firmLabel + ' ／ ' + modeLabel + ' ／ ' + esc(topicTitle) + '</div></div>'
     + '<div class="stats-row"><div class="sbox"><div class="sl">総ターン数</div><div class="sv">' + turnCount + '</div></div><div class="sbox"><div class="sl">所要時間</div><div class="sv" style="font-size:16px">' + fmtSec(timerElapsed) + '</div></div><div class="sbox"><div class="sl">ファーム種別</div><div class="sv" style="font-size:14px">' + firmLabel + '</div></div></div>'
     + '<div class="overall-box"><div class="ov-score">' + (r.total||0) + '<span>/100</span></div><div class="ov-text"><h3>' + esc(r.grade||'—') + '</h3><p>' + esc(r.summary||'—') + '</p></div></div>'
     + (r.grade_guide ? '<div class="grade-guide-box"><div class="gg-title">📊 点数の目安</div><div class="gg-text">' + esc(r.grade_guide) + '</div></div>' : '')
